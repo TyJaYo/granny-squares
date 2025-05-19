@@ -64,18 +64,8 @@
             <div class="square-preview-container">
               <h4>Preview</h4>
               <div class="granny-square preview-square" :style="{ backgroundColor: currentSquare.field }">
-              <div class="petal-container">
-                <div
-                  v-for="circle in dashedCircles"
-                  :key="circle.id"
-                  class="dashed-circle"
-                  :style="{
-                    width: `${circle.size}%`,
-                    height: `${circle.size}%`,
-                    opacity: circle.opacity,
-                    strokeDasharray: circle.dashArray
-                  }"
-                ></div>
+              <div class="petal-container" :class="{ 'shadowed': showShadow }">
+                <img v-if="showTexture" src="/crochet-texture.svg" class="texture-overlay" alt="" />
 
                 <div class="petal petal-top" :style="{ backgroundColor: currentSquare.petals }"></div>
                 <div class="petal petal-top-right" :style="{ backgroundColor: currentSquare.petals }"></div>
@@ -103,7 +93,12 @@
                   <input type="checkbox" v-model="showTexture">
                   <span class="toggle-label">Texture Mode</span>
                 </label>
-                <div class="texture-warning">May slow page at high square counts</div>
+              </div>
+              <div class="shadow-toggle">
+                <label class="toggle-container">
+                  <input type="checkbox" v-model="showShadow">
+                  <span class="toggle-label">3D Mode</span>
+                </label>
               </div>
             </div>
           </div>
@@ -121,18 +116,8 @@
           class="granny-square blanket-square"
           :style="{ backgroundColor: square.field }"
         >
-          <div class="petal-container">
-            <div
-              v-for="circle in dashedCircles"
-              :key="circle.id"
-              class="dashed-circle"
-              :style="{
-                width: `${circle.size}%`,
-                height: `${circle.size}%`,
-                opacity: circle.opacity,
-                strokeDasharray: circle.dashArray
-              }"
-            ></div>
+          <div class="petal-container" :class="{ 'shadowed': showShadow }">
+            <img v-if="showTexture" src="/crochet-texture.svg" class="texture-overlay" alt="" />
 
             <div class="petal petal-top" :style="{ backgroundColor: square.petals }"></div>
             <div class="petal petal-top-right" :style="{ backgroundColor: square.petals }"></div>
@@ -206,36 +191,13 @@ export default {
       paletteColors: [],
       paletteUpdateKey: 0,
       randomSquaresCount: 1,
-      showTexture: true
+      showTexture: true,
+      showShadow: true
     }
   },
   computed: {
     colors () {
       return this.paletteColors.length > 0 ? this.paletteColors : this.defaultColors
-    },
-    dashedCircles () {
-      if (!this.showTexture) return []
-      
-      const circlesConfig = []
-      const totalCircles = 45
-
-      for (let i = 1; i <= totalCircles; i++) {
-        const t = i / totalCircles
-        const size = 160 - (Math.pow(t, 0.6) * 160)
-        const opacity = 0.4
-        const dashWidth = 1 + (i % 1)
-        const gapWidth = 1 + ((i + 1) % 1)
-        const dashArray = `${dashWidth},${gapWidth}`
-
-        circlesConfig.push({
-          id: `circle-${i}`,
-          size,
-          opacity,
-          dashArray
-        })
-      }
-
-      return circlesConfig
     }
   },
   methods: {
@@ -412,18 +374,16 @@ export default {
   height: 100%;
 }
 
-.dashed-circle {
+.texture-overlay {
   position: absolute;
-  border-radius: 50%;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
   z-index: 10;
-  background: transparent;
-  box-sizing: border-box;
-  border: 1px dashed rgba(255, 255, 255, .9);
   mix-blend-mode: overlay;
+  opacity: 1;
 }
 
 .triangle-connector {
@@ -433,7 +393,8 @@ export default {
   border-style: solid;
   border-width: 40px 13px 0;
   border-color: transparent;
-  z-index: 1;
+  z-index: 2;
+  filter: none;
 }
 
 .triangle-connector.top {
@@ -488,7 +449,12 @@ export default {
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  z-index: 3;
+  z-index: 2;
+}
+
+.petal-container.shadowed .petal,
+.petal-container.shadowed .center {
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
 }
 
 .petal-top {
@@ -718,11 +684,6 @@ export default {
   font-weight: bold;
 }
 
-.texture-warning {
-  font-size: 0.75rem;
-  color: #888;
-  margin-top: 0.25rem;
-}
 
 @media (max-width: 768px) {
   .granny-square-designer {
