@@ -54,6 +54,10 @@ export default {
       this.colors.splice(index, 1)
       this.$emit('colors-updated', this.colors)
     },
+    updateColors (newColors) {
+      this.colors = [...newColors]
+      this.$emit('colors-updated', this.colors)
+    },
     getRandomColor () {
       if (this.colors.length === 0) return '#000000'
       return this.colors[Math.floor(Math.random() * this.colors.length)]

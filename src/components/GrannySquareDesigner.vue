@@ -192,7 +192,8 @@ export default {
       paletteUpdateKey: 0,
       randomSquaresCount: 1,
       showTexture: true,
-      showShadow: true
+      showShadow: true,
+      colorsLoadedFromUrl: false
     }
   },
   computed: {
@@ -228,6 +229,7 @@ export default {
           field: this.getRandomColor()
         }
       }
+      this.updateUrlWithColors()
     },
     addSquare () {
       this.squares.push({...this.currentSquare})
@@ -238,10 +240,12 @@ export default {
     },
     setColor (part, color) {
       this.currentSquare[part] = color
+      this.updateUrlWithColors()
     },
     handleColorsUpdated (updatedColors) {
       this.paletteColors = [...updatedColors]
       this.paletteUpdateKey++
+      this.updateUrlWithColors()
     },
     addRandomSquares () {
       const count = Math.max(1, parseInt(this.randomSquaresCount) || 1)
@@ -259,6 +263,43 @@ export default {
       }
 
       this.randomizeColors()
+    },
+    loadColorsFromUrl() {
+      const params = new URLSearchParams(window.location.search)
+      const palette = params.get('p')
+
+      this.colorsLoadedFromUrl = false
+
+      if (palette) {
+        const hexColors = palette.split('-')
+        const validColors = []
+
+        for (const hex of hexColors) {
+          if (/^[0-9A-F]{6}$/i.test(hex)) {
+            validColors.push(`#${hex}`)
+          }
+        }
+
+        if (validColors.length > 0) {
+          this.paletteColors = validColors
+
+          if (this.$refs.colorPalette) {
+            this.$refs.colorPalette.updateColors(validColors)
+          }
+
+          this.colorsLoadedFromUrl = true
+        }
+      }
+    },
+    updateUrlWithColors() {
+      const hexValues = this.paletteColors.length > 0 ? this.paletteColors : this.defaultColors
+      const params = new URLSearchParams()
+      const colorParam = hexValues.map(color => color.replace('#', '')).join('-')
+
+      params.set('p', colorParam)
+
+      const newUrl = `${window.location.pathname}?${params.toString()}`
+      window.history.replaceState({}, '', newUrl)
     }
   },
   watch: {
@@ -284,8 +325,23 @@ export default {
       if (this.$refs.colorPalette) {
         this.paletteColors = [...this.$refs.colorPalette.colors]
       }
-      this.randomizeColors()
+
+      this.loadColorsFromUrl()
+
+      if (!this.colorsLoadedFromUrl) {
+        this.randomizeColors()
+      }
+
+      this.updateUrlWithColors()
     })
+  },
+
+  created() {
+    window.addEventListener('popstate', this.loadColorsFromUrl)
+  },
+
+  beforeUnmount() {
+    window.removeEventListener('popstate', this.loadColorsFromUrl)
   }
 }
 </script>
