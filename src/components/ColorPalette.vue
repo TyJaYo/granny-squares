@@ -65,7 +65,7 @@ export default {
     validateColor (index) {
       const hexColorRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/
       if (!hexColorRegex.test(this.colors[index])) {
-        this.colors[index] = '#8ED2F0'
+        this.colors[index] = this.getRandomColor()
       }
       this.$emit('colors-updated', this.colors)
     }
