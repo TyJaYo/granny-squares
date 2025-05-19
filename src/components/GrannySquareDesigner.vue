@@ -65,7 +65,7 @@
               <h4>Preview</h4>
               <div class="granny-square preview-square" :style="{ backgroundColor: currentSquare.field }">
               <div class="petal-container" :class="{ 'shadowed': showShadow }">
-                <img v-if="showTexture" src="/crochet-texture.svg" class="texture-overlay" alt="" />
+                <img v-if="showTexture" src="@/assets/crochet-texture.svg" class="texture-overlay" alt="" />
 
                 <div class="petal petal-top" :style="{ backgroundColor: currentSquare.petals }"></div>
                 <div class="petal petal-top-right" :style="{ backgroundColor: currentSquare.petals }"></div>
@@ -117,7 +117,7 @@
           :style="{ backgroundColor: square.field }"
         >
           <div class="petal-container" :class="{ 'shadowed': showShadow }">
-            <img v-if="showTexture" src="/crochet-texture.svg" class="texture-overlay" alt="" />
+            <img v-if="showTexture" src="@/assets/crochet-texture.svg" class="texture-overlay" alt="" />
 
             <div class="petal petal-top" :style="{ backgroundColor: square.petals }"></div>
             <div class="petal petal-top-right" :style="{ backgroundColor: square.petals }"></div>
